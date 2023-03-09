@@ -1,10 +1,7 @@
 program MolDocker
-
     use atom_type
     use molecule_type
     
-
-
     implicit none
 
     ! character(2) atom_name(53)
@@ -43,14 +40,15 @@ program MolDocker
     do e=1,EPOCH
         arr_ligand=genligands(ligand, N_CHILD) 
         do i=1,N_CHILD
+            ! Calcul du volume occupé par le ligand et la molécule
             call mol%box(arr_ligand(i), volume)
             if (best_volume > volume) then
-                ! TODO register as best
+                ! Enregistrement du meilleur
                 best_volume = volume
                 best_ligand = arr_ligand(i)
             endif
         enddo
-    end do
+    enddo
 
     ! for ligands
         ! for nbgenerations
