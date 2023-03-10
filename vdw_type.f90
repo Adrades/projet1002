@@ -52,7 +52,7 @@ implicit none
             end if
 
             ! Skip first 6 lines
-            do i=1, 6
+            do i=1, 5
                 read(10,'(a80)') line
                 print '(a)',line
             enddo

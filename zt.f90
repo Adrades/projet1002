@@ -6,9 +6,10 @@ program zt
 
     type(atomvdw) :: atom
 
-    type(atomvdw), dimension(53):: vdw_array
+    type(atomvdw), dimension(52):: vdw_array
 
     character(len=2):: na
+    integer :: i
     real :: rad, radinser
 
     na = "H "
@@ -23,6 +24,7 @@ program zt
     print '(f4.2)', vdw_array(1)%radius
 
     call atom%get_atom_radius("H ", vdw_array, radinser)
+
 
     print '(f4.2)', radinser
 
