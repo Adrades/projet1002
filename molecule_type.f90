@@ -4,10 +4,10 @@ use atom_type
     implicit none
 
     type molecule
-    type(atom), dimension(:), allocatable, private :: atoms
-    integer , private :: nb_atoms
+    type(atom), dimension(:), allocatable, public :: atoms
+    integer , public :: nb_atoms
 contains
-    procedure :: init_mol, add_atom, box, dist, test_valid, print_mol
+    procedure :: init_mol, add_atom, box, dist, test_valid, print_mol, write, read
 
     ! allow calls like print *
     generic :: write(formatted) => print_mol
@@ -136,6 +136,71 @@ contains
         iostat=0
 
     end subroutine print_mol
+
+    subroutine read(m, filename)
+        class(molecule), intent(inout) :: m
+        character(len=100), intent(in) :: fileName
+        character(len=100):: ligne
+        character(len=3) :: element
+        integer :: i, nb_atoms, ok
+        type(atom) :: a
+        real, dimension(3) :: coord
+       
+        ! Open File provided
+        call getarg(1,fileName)
+        print '(/,a,a)', "File to read = ",trim(fileName)
+        open(unit=10,file=fileName,iostat=ok,status='old')
+        if(ok/=0) then
+         print '(a,4x,a)', "Error during opening", fileName
+         stop 20
+        end if
+
+        ! Lire nombre d'atomes du ligand
+        read(10, '(a)', iostat=ok) ligne
+        read(ligne(1:5),'(i4)') nb_atoms
+        m%nb_atoms = nb_atoms
+
+        ! Ligand fourni en entrée ?
+        read(10, '(a)', iostat=ok) ligne
+
+        ! Read the content
+        do i=1, 256
+            read(10, '(A8)', iostat=ok) ligne
+            read(ligne(3:4), '(A8)') element
+            read(ligne(10:18), '(f9.5)') coord(1)
+            read(ligne(27:35), '(f9.5)') coord(2)
+            read(ligne(41:50), '(f9.5)') coord(3)
+            call a%init_atom(element, coord)
+            call m%add_atom(a)
+        enddo 
+    end subroutine
+
+    subroutine write(m, filename)
+        class(molecule), intent(in) :: m
+        character(len=100), intent(in) :: fileName
+        integer :: i, ok
+        type(atom) :: a
+
+        ! Open File provided
+        print '(/,a,a)', "File to write = ",trim(fileName)
+        open(unit=10,file=fileName,iostat=ok,status='old')
+        if(ok/=0) then
+         print '(a,4x,a)', "Error during opening", fileName
+         stop 20
+        end if
+
+        ! écrire le nombre d'atomes du ligand
+        write(10, '(i10)', iostat=ok) m%nb_atoms
+
+        ! Ligand fourni en entrée ?
+        write(10, '(a)', iostat=ok) "ligand"
+
+        ! Read the content
+        do i=1, m%nb_atoms
+            a = m%atoms(i)
+            write(10, '(a3,3i8/)', iostat=ok) a%element, a%coordinates(1), a%coordinates(2), a%coordinates(3)
+        enddo 
+    endsubroutine
 
 end module molecule_type
 
