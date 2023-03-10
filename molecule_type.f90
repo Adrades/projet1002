@@ -155,8 +155,6 @@ contains
         read(10, '(I10)', iostat=ok) nb_atoms 
         m%nb_atoms = 0
         allocate(m%atoms(nb_atoms))
-        
-        print *, "DEBUG", nb_atoms
 
         ! Ligand fourni en entrée ?
         read(10, '(a)', iostat=ok) ligne
@@ -165,8 +163,7 @@ contains
         do i=1, nb_atoms
             read(10, '(a3, 3(f15.5))', iostat=ok) emt, coord(1), coord(2), coord(3)
             call a%init_atom(emt, coord)
-            call m%add_atom(a)
-            print *, emt, coord
+            call m%add_atom(a) 
         enddo 
     end subroutine
 

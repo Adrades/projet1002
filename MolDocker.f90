@@ -17,23 +17,41 @@ program MolDocker
     real :: volume, best_volume
 
     type(molecule) :: ligand, best_ligand
-    type(molecule) :: mol
+    type(molecule) :: site
     type(molecule), dimension(N_CHILD) :: arr_ligand    
-    ! TODO read VdW
+
+    character(len=100) :: ligand_path
+    character(len=100) :: site_path
+    character(len=100) :: vdw_path
+
+    if(iargc() < 1) then
+        print '(a)', "Please provide a xyz file for the site" 
+        stop 10
+    end if
+    call getarg(1,site_path)
+
+    if(iargc() < 2) then
+        print '(a)', "Please provide a xyz file for the ligand"
+        stop 20
+    end if
+    call getarg(2, ligand_path)
+
+    if(iargc() < 3) then
+        print '(a)', "Please provide a Van Der Walls file"
+        stop 30
+    end if
+    call getarg(3, vdw_path)
+
+    ! TODO read VdW => tableau avec radius atomes
+
 
     ! TODO read both xyz
-
-    ! read VdW => tableau avec radius atomes
-    
-
-    ! read xyz ligand 
-    ! read xyz molecule
-    call mol%init_mol(NB_MAX_ATOMS)
-    call ligand%init_mol(NB_MAX_ATOMS)
+    call site%read_mol(site_path)
+    call ligand%read_mol(ligand_path)
 
     ! FIXME try validating
     !init best volume as starting point
-    call mol%box(ligand, best_volume)
+    call site%box(ligand, best_volume)
 
     ! gen ligand (rotate) n fois
     ! #OMP on attribue les ligands, 1 par process (ou autrement ?)
@@ -41,7 +59,7 @@ program MolDocker
         arr_ligand=genligands(ligand, N_CHILD) 
         do i=1,N_CHILD
             ! Calcul du volume occupé par le ligand et la molécule
-            call mol%box(arr_ligand(i), volume)
+            call site%box(arr_ligand(i), volume)
             if (best_volume > volume) then
                 ! Enregistrement du meilleur
                 best_volume = volume
@@ -60,6 +78,7 @@ program MolDocker
             ! nouveau best ligand all = rotation + translation
     ! #OMP max(bestdesjobs)
     ! output ligandtranslatérotaté + molécule
+    call ligand%write_mol("result.xyz")
 
 contains
 function genligands(ligan, n) result(arr_ligand)
