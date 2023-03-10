@@ -12,7 +12,7 @@ program test_molecule
 
     ! Verify args
     if(iargc() /= 1) then
-        print '(a)', "Please provide a WFN file"
+        print '(a)', "Please provide a xyz file"
         stop 10
     end if
 
@@ -25,7 +25,8 @@ program test_molecule
      stop 20
     end if
 
-    call mol%write(fileName)   
-   
+    call mol%read_mol(fileName)
+
+    call mol%write_mol("ligand2.xyz")
 end program test_molecule
   
